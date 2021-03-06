@@ -1,5 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, desktopCapturer, globalShortcut  } = require('electron');
 const path = require('path');
+const { capture } = require('./screen');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -9,15 +10,38 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    transparent: true,
+    frame: false,
+    kiosk: true,
+    fullscreen: true,
+    skipTaskbar: true,
+    webPreferences: {
+      nodeIntegration: true
+  }
+
   });
+
+  mainWindow.setIgnoreMouseEvents(false)
+
+  mainWindow.setFocusable(false);
+  
+  mainWindow.hide()
+  // //remove from toolbar
+  // mainWindow.setFocusable(false);
+
+  globalShortcut.register('F4', () => {
+    console.log('Electron loves global shortcuts!')
+    mainWindow.show()
+
+    // #2
+    mainWindow.webContents.executeJavaScript(`capture()`)
+  })
 
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
