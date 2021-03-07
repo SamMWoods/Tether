@@ -1,4 +1,4 @@
-const { app, BrowserWindow, desktopCapturer, globalShortcut  } = require('electron');
+const { app, BrowserWindow, screen , globalShortcut  } = require('electron');
 const path = require('path');
 const { capture } = require('./screen');
 
@@ -29,10 +29,46 @@ const createWindow = () => {
   // //remove from toolbar
   // mainWindow.setFocusable(false);
 
+  //take screenshot
   globalShortcut.register('F4', () => {
-    console.log('Electron loves global shortcuts!')
+    console.log('Snap')
+    const displays = screen.getAllDisplays()
+    // displays.map((display, i) => {
+    //   console.log(i, display.bounds.width, display.bounds.height)
+    // })
+
+    const externalDisplay = displays.find((display, i) => {
+      return display.bounds.x !== 0 || display.bounds.y !== 0
+      // console.log(i, display.bounds.width, display.bounds.height)
+    })
+
+    console.log(externalDisplay)
+
+    if (externalDisplay) {
+      win = new BrowserWindow({
+        x: externalDisplay.bounds.x,
+        y: externalDisplay.bounds.y,
+        transparent: true,
+        frame: false,
+        kiosk: true,
+        fullscreen: true,
+        skipTaskbar: true,
+        webPreferences: {
+          nodeIntegration: true
+      }
+      })
+      win.webContents.executeJavaScript(`capture(1)`)
+      win.loadFile(path.join(__dirname, 'index.html'));
+    }
+
     mainWindow.show()
-    mainWindow.webContents.executeJavaScript(`capture()`)
+    mainWindow.webContents.executeJavaScript(`capture(0)`)
+  })
+
+   //close app
+  globalShortcut.register('CommandOrControl+F4', () => {
+    console.log('Bye Bye')
+    app.quit();
   })
 
   // and load the index.html of the app.
