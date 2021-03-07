@@ -4,6 +4,6 @@ body {
   margin: 0;
 }
 
-video{
+#screenshot-image{
   object-fit: fill;
 }

@@ -32,8 +32,6 @@ const createWindow = () => {
   globalShortcut.register('F4', () => {
     console.log('Electron loves global shortcuts!')
     mainWindow.show()
-
-    // #2
     mainWindow.webContents.executeJavaScript(`capture()`)
   })
 
