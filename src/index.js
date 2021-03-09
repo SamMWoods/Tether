@@ -8,8 +8,13 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 }
 
 const createWindow = () => {
+
+  const Primarydisplay = screen.getPrimaryDisplay()
+  console.log(Primarydisplay)
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    x: Primarydisplay.bounds.x,
+    y: Primarydisplay.bounds.y,
     transparent: true,
     frame: false,
     kiosk: true,
@@ -31,38 +36,37 @@ const createWindow = () => {
 
   //take screenshot
   globalShortcut.register('F4', () => {
-    console.log('Snap')
+    console.log('Snap', Primarydisplay)
     const displays = screen.getAllDisplays()
+    console.log('Snap', displays)
     // displays.map((display, i) => {
     //   console.log(i, display.bounds.width, display.bounds.height)
     // })
 
-    const externalDisplay = displays.find((display, i) => {
-      return display.bounds.x !== 0 || display.bounds.y !== 0
-      // console.log(i, display.bounds.width, display.bounds.height)
-    })
+    displays.map((display, i) => {
+      var win = [];
+      // console.log(display, i)
+      if (display){
+        console.log(`screen ${i}`,display)
+         win[i] = new BrowserWindow({
+          x: display.bounds.x,
+          y: display.bounds.y,
+          transparent: true,
+          frame: false,
+          kiosk: true,
+          fullscreen: true,
+          skipTaskbar: true,
+            webPreferences: {
+              nodeIntegration: true
+          }
+        })
 
-    console.log(externalDisplay)
-
-    if (externalDisplay) {
-      win = new BrowserWindow({
-        x: externalDisplay.bounds.x,
-        y: externalDisplay.bounds.y,
-        transparent: true,
-        frame: false,
-        kiosk: true,
-        fullscreen: true,
-        skipTaskbar: true,
-        webPreferences: {
-          nodeIntegration: true
+        win[i].webContents.executeJavaScript(`capture(${display.id})`)
+        win[i].loadFile(path.join(__dirname, 'index.html'));
       }
-      })
-      win.webContents.executeJavaScript(`capture(1)`)
-      win.loadFile(path.join(__dirname, 'index.html'));
-    }
-
-    mainWindow.show()
-    mainWindow.webContents.executeJavaScript(`capture(0)`)
+      // mainWindow.show()
+      // mainWindow.webContents.executeJavaScript(`capture(0)`)
+    })
   })
 
    //close app

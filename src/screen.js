@@ -2,9 +2,17 @@
 const {desktopCapturer} = require('electron')
 
 module.exports = { 
-    capture: (screenNum) => {
+    capture: (screenId) => {
+      console.log(screenId)
       desktopCapturer.getSources({ types: ['window', 'screen'], thumbnailSize: { width: 1920, height: 1080 }}).then(async sources => {
-        document.getElementById('screenshot-image').src = sources[screenNum].thumbnail.toDataURL()
+        console.log(sources)
+        sources.map((source, i) => {
+          console.log(source.display_id, screenId)
+          if(source.display_id == screenId){
+            document.getElementById('screenshot-image').src = sources[i].thumbnail.toDataURL()
+
+          }
+        })
       })
   }
 }
