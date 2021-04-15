@@ -1,6 +1,6 @@
-const { app, BrowserWindow, screen , globalShortcut  } = require('electron');
+const { app ,BrowserWindow, screen , globalShortcut  } = require('electron');
 const path = require('path');
-const { capture } = require('./screen');
+// const { capture } = require('./screen');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -9,74 +9,48 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 const createWindow = () => {
 
-  const Primarydisplay = screen.getPrimaryDisplay()
-  console.log(Primarydisplay)
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    x: Primarydisplay.bounds.x,
-    y: Primarydisplay.bounds.y,
-    transparent: true,
-    frame: false,
-    kiosk: true,
-    fullscreen: true,
-    skipTaskbar: true,
-    webPreferences: {
-      nodeIntegration: true
-  }
+  const displays = screen.getAllDisplays()
+  var win = [];
+  displays.map((display, i) => {
+    if (display){
+       win[i] = new BrowserWindow({
+        x: display.bounds.x,
+        y: display.bounds.y,
+        transparent: true,
+        frame: false,
+        kiosk: true,
+        fullscreen: true,
+        skipTaskbar: true,
+          webPreferences: {
+            nodeIntegration: true,
+        }
+      })
+    }
+    
+    win[i].hide()
 
+    // and load the index.html of the app.
+    win[i].loadFile(path.join(__dirname, 'index.html'));
   });
-
-  mainWindow.setIgnoreMouseEvents(false)
-
-  mainWindow.setFocusable(false);
-  
-  mainWindow.hide()
-  // //remove from toolbar
-  // mainWindow.setFocusable(false);
 
   //take screenshot
   globalShortcut.register('F4', () => {
-    console.log('Snap', Primarydisplay)
-    const displays = screen.getAllDisplays()
-    console.log('Snap', displays)
-    // displays.map((display, i) => {
-    //   console.log(i, display.bounds.width, display.bounds.height)
-    // })
-
     displays.map((display, i) => {
-      var win = [];
-      // console.log(display, i)
-      if (display){
-        console.log(`screen ${i}`,display)
-         win[i] = new BrowserWindow({
-          x: display.bounds.x,
-          y: display.bounds.y,
-          transparent: true,
-          frame: false,
-          kiosk: true,
-          fullscreen: true,
-          skipTaskbar: true,
-            webPreferences: {
-              nodeIntegration: true
-          }
-        })
-
-        win[i].webContents.executeJavaScript(`capture(${display.id})`)
-        win[i].loadFile(path.join(__dirname, 'index.html'));
-      }
-      // mainWindow.show()
-      // mainWindow.webContents.executeJavaScript(`capture(0)`)
+      console.log(display, i)
+      win[i].show()
+        win[i].webContents.executeJavaScript(`capture(${display.id})`);
+        // Open the DevTools.
+        // win[i].webContents.openDevTools();    
     })
   })
 
    //close app
   globalShortcut.register('CommandOrControl+F4', () => {
     console.log('Bye Bye')
-    app.quit();
+    displays.map((display, i) => {
+      win[i].hide()
+    })
   })
-
-  // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
