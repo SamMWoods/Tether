@@ -7,3 +7,20 @@ body {
 #screenshot-image{
   object-fit: fill;
 }
+
+.img-wrapper {
+  position: relative;
+  width: 100%;
+  font-size: 0;
+}
+
+.img-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.55);
+}
+
+.img-wrapper img {width: 100%;}

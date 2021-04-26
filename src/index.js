@@ -1,5 +1,6 @@
 const { app ,BrowserWindow, screen , globalShortcut  } = require('electron');
 const path = require('path');
+const { ipcMain } = require('electron')
 // const { capture } = require('./screen');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -37,10 +38,10 @@ const createWindow = () => {
   globalShortcut.register('F4', () => {
     displays.map((display, i) => {
       console.log(display, i)
+      win[i].webContents.send('snap', {display});
       win[i].show()
-        win[i].webContents.executeJavaScript(`capture(${display.id})`);
-        // Open the DevTools.
-        // win[i].webContents.openDevTools();    
+      // Open the DevTools.
+      // win[i].webContents.openDevTools();    
     })
   })
 
@@ -80,3 +81,4 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
